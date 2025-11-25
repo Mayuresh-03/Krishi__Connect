@@ -5,7 +5,7 @@ import {
   ShieldCheck,
   MessageSquare,
   X,
-  XCircle, // New icon for rejection details
+  XCircle,
   ImageIcon,
   HardDriveUpload,
   CalendarDays,
@@ -14,6 +14,8 @@ import {
   AlertCircle,
   ThumbsDown,
   Inbox,
+  User,
+  Clock
 } from "lucide-react";
 import { useAuthStore } from "../authStore";
 import NegotiationChatModal from "../farmer_business_components/NegotiationChatModal";
@@ -145,14 +147,13 @@ const BuyerContractsPage = () => {
   const [selectedNegotiation, setSelectedNegotiation] = useState(null);
   
   const [selectedContract, setSelectedContract] = useState(null);
-  const [selectedRejectedContract, setSelectedRejectedContract] = useState(null); // New state for rejected detail view
+  const [selectedRejectedContract, setSelectedRejectedContract] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [submittingMilestoneId, setSubmittingMilestoneId] = useState(null);
 
   const token = useAuthStore((state) => state.token);
 
   const fetchAllData = useCallback(async () => {
-    // ... (fetchAllData remains the same as before)
     if (!token) {
       setError("Authentication error. Please log in again.");
       setLoading({ ongoing: false, negotiating: false, rejected: false });
@@ -217,7 +218,6 @@ const BuyerContractsPage = () => {
     fetchAllData();
   }, [fetchAllData]);
 
-  // --- Logic remains the same ---
   const handleAccept = async (contractId) => {
     if (!confirm("Are you sure you want to accept these terms?")) return;
     try {
@@ -300,7 +300,7 @@ const BuyerContractsPage = () => {
             onClick={() => {
                 setActiveTab(tab.key);
                 setSelectedContract(null);
-                setSelectedRejectedContract(null); // Reset rejected detail view on tab change
+                setSelectedRejectedContract(null);
             }}
             className={`flex-1 flex items-center justify-center p-3 rounded-md text-sm font-semibold border-2 transition-colors duration-200 ${
               activeTab === tab.key
@@ -324,7 +324,7 @@ const BuyerContractsPage = () => {
           </div>
         ) : (
           <div>
-            {/* Ongoing Tab Logic */}
+            {/* Ongoing Tab Logic (Remains Horizontal List as requested) */}
             {activeTab === 'ongoing' && (
               currentDetailedContract ? (
                 <div>
@@ -371,7 +371,7 @@ const BuyerContractsPage = () => {
               )
             )}
 
-            {/* Rejected Tab Logic */}
+            {/* Rejected Tab Logic (Updated to Grid/Box) */}
             {activeTab === 'rejected' && (
               selectedRejectedContract ? (
                 // --- DETAIL VIEW for selected rejected contract ---
@@ -379,7 +379,7 @@ const BuyerContractsPage = () => {
                   <button onClick={() => setSelectedRejectedContract(null)} className="flex items-center text-red-700 font-semibold hover:underline mb-4">
                     <ArrowLeft size={18} className="mr-1" /> Back to All Rejected Proposals
                   </button>
-                  <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-red-500">
                     <div className="border-b pb-4 mb-4">
                         <h2 className="text-3xl font-bold text-gray-900">{selectedRejectedContract.listing?.crop_type || 'N/A'}</h2>
                         <p className="text-lg text-gray-600">with {selectedRejectedContract.farmer?.full_name || 'Unknown Farmer'}</p>
@@ -397,47 +397,112 @@ const BuyerContractsPage = () => {
                   </div>
                 </div>
               ) : (
-                // --- LIST VIEW for rejected contracts ---
-                <div className="space-y-3">
-                  {currentTabData.length === 0 ? <div className="text-center py-10 text-gray-500"><Inbox size={32} className="mx-auto mb-2" /><p>No contracts in this category.</p></div>
-                  : currentTabData.map((contract) => (
-                    <div key={contract.id} onClick={() => setSelectedRejectedContract(contract)} className="p-4 bg-white rounded-lg shadow-sm border-l-4 border-red-500 cursor-pointer hover:shadow-md hover:border-red-600 transition-all">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-800">{contract.listing?.crop_type || 'N/A'}</h3>
-                        <p className="text-sm text-gray-500">with {contract.farmer?.full_name || 'Unknown Farmer'}</p>
-                      </div>
+                // --- GRID VIEW for rejected contracts ---
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentTabData.length === 0 ? (
+                    <div className="col-span-full text-center py-10 text-gray-500">
+                      <Inbox size={32} className="mx-auto mb-2" />
+                      <p>No rejected proposals.</p>
                     </div>
-                  ))}
+                  ) : (
+                    currentTabData.map((contract) => (
+                      <div 
+                        key={contract.id} 
+                        onClick={() => setSelectedRejectedContract(contract)} 
+                        className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group"
+                      >
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-red-500" />
+                        <div className="p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <h3 className="font-bold text-xl text-gray-800 group-hover:text-red-600 transition-colors">
+                              {contract.listing?.crop_type || 'N/A'}
+                            </h3>
+                            <div className="bg-red-100 p-1.5 rounded-full">
+                              <ThumbsDown size={16} className="text-red-600" />
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center text-gray-600 mb-2">
+                             <User size={16} className="mr-2" />
+                             <span className="text-sm">with {contract.farmer?.full_name || 'Unknown Farmer'}</span>
+                          </div>
+
+                          <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</span>
+                            <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">Rejected</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )
             )}
             
-            {/* Negotiating Tab Logic */}
+            {/* Negotiating Tab Logic (Updated to Grid/Box) */}
             {activeTab === 'negotiating' && (
-                <div className="space-y-3">
-                    {currentTabData.length === 0 ? <div className="text-center py-10 text-gray-500"><Inbox size={32} className="mx-auto mb-2" /><p>No contracts in this category.</p></div>
-                    : currentTabData.map((contract) => {
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {currentTabData.length === 0 ? (
+                      <div className="col-span-full text-center py-10 text-gray-500">
+                        <Inbox size={32} className="mx-auto mb-2" />
+                        <p>No contracts in negotiation.</p>
+                      </div>
+                    ) : (
+                      currentTabData.map((contract) => {
                         const isMyTurn = contract.last_offer_by === 'farmer';
                         return (
-                            <div key={contract.id} className={`p-4 bg-white rounded-lg shadow-sm border-l-4 ${isMyTurn ? 'border-green-500' : 'border-yellow-500'}`}>
-                                <div><h3 className="font-bold text-lg text-blue-700">{contract.listing?.crop_type}</h3><p className="text-sm text-gray-500">with {contract.farmer?.full_name}</p></div>
-                                <div className="mt-4 border-t pt-4">
+                            <div 
+                              key={contract.id} 
+                              className={`bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border hover:shadow-xl transition-all duration-300 ${isMyTurn ? 'border-green-200 ring-1 ring-green-100' : 'border-yellow-200 ring-1 ring-yellow-100'}`}
+                            >
+                                <div className={`h-1.5 w-full ${isMyTurn ? 'bg-green-500' : 'bg-yellow-400'}`} />
+                                <div className="p-5 flex-1 flex flex-col">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h3 className="font-bold text-xl text-gray-900">{contract.listing?.crop_type}</h3>
                                     {isMyTurn ? (
-                                        <div>
-                                            <p className="text-sm font-semibold text-green-700 mb-3">New offer received. Please review.</p>
-                                            <div className="flex space-x-2">
-                                                <button onClick={() => handleAccept(contract.id)} className="flex-1 bg-green-600 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-green-700">Accept</button>
-                                                <button onClick={() => handleReject(contract.id)} className="flex-1 bg-red-600 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-red-700">Reject</button>
-                                                <button onClick={() => setSelectedNegotiation(contract)} className="flex-1 bg-gray-600 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-gray-700">Negotiate</button>
-                                            </div>
-                                        </div>
+                                      <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full animate-pulse">Action Required</span>
                                     ) : (
-                                        <div><p className="text-sm font-semibold text-yellow-700 mb-3">Waiting for farmer to respond...</p><button onClick={() => setSelectedNegotiation(contract)} className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Open Chat</button></div>
+                                      <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                                        <Clock size={12} className="mr-1" /> Waiting
+                                      </span>
                                     )}
+                                  </div>
+                                  
+                                  <div className="flex items-center text-gray-500 mb-4 text-sm">
+                                    <User size={16} className="mr-2" />
+                                    <span>{contract.farmer?.full_name}</span>
+                                  </div>
+
+                                  <div className="mt-auto pt-4 border-t border-gray-100">
+                                      {isMyTurn ? (
+                                          <div className="space-y-3">
+                                              <p className="text-sm font-medium text-green-700 text-center bg-green-50 py-1 rounded">
+                                                New offer received
+                                              </p>
+                                              <div className="grid grid-cols-2 gap-2">
+                                                  <button onClick={() => handleAccept(contract.id)} className="bg-green-600 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-green-700 shadow-sm transition-colors">Accept</button>
+                                                  <button onClick={() => handleReject(contract.id)} className="bg-red-50 text-red-600 text-sm font-bold py-2 px-3 rounded-lg hover:bg-red-100 border border-red-200 transition-colors">Reject</button>
+                                              </div>
+                                              <button onClick={() => setSelectedNegotiation(contract)} className="w-full bg-gray-800 text-white text-sm font-bold py-2 px-3 rounded-lg hover:bg-gray-900 shadow-sm transition-colors flex items-center justify-center">
+                                                <MessageSquare size={16} className="mr-2" /> Negotiate
+                                              </button>
+                                          </div>
+                                      ) : (
+                                          <div className="space-y-3">
+                                              <p className="text-sm font-medium text-yellow-700 text-center bg-yellow-50 py-1 rounded">
+                                                Waiting for response
+                                              </p>
+                                              <button onClick={() => setSelectedNegotiation(contract)} className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-sm transition-colors flex items-center justify-center">
+                                                <MessageSquare size={16} className="mr-2" /> Open Chat
+                                              </button>
+                                          </div>
+                                      )}
+                                  </div>
                                 </div>
                             </div>
                         )
-                    })}
+                    })
+                  )}
                 </div>
             )}
 

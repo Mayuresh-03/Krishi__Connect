@@ -3,6 +3,7 @@ import { useAuthStore } from '../authStore';
 import ProfileData from '../farmer_business_components/Profile/ProfileData';
 import StarRating from '../farmer_business_components/Profile/StarRating';
 import ProfileField from '../farmer_business_components/Profile/ProfileField';
+import { API_BASE_URL } from '../api/apiConfig';
 import {
   Loader2,
   AlertCircle,
@@ -174,7 +175,7 @@ export default function ProfilePage() {
   if (error || !profile) {
     return (
       <div className="m-4 flex items-start bg-red-50 text-red-800 p-4 rounded-lg shadow-sm border border-red-200">
-        <AlertCircle size={24} className="mr-3 flex-shrink-0 text-red-500" />
+        <AlertCircle size={24} className="mr-3 shrink-0 text-red-500" />
         <div>
           <p className="font-semibold">Error Loading Profile</p>
           <p className="text-sm">

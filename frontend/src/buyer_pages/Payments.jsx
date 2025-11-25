@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlusCircle, X, Loader2 as Loader } from 'lucide-react';
 import { useAuthStore } from '../authStore';
+import { API_BASE_URL } from '../api/apiConfig';
 import { Link } from 'react-router-dom'; // Import Link
 
 // --- Add Funds Modal Component (Updated to handle live API) ---
