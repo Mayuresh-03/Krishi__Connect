@@ -1,6 +1,6 @@
 🌾 KrishiConnect
 
-Team Invincible | AVISHKAAR 2025
+Team Invincible
 
 Welcome to the KrishiConnect repository! This project is our solution to a massive problem in the agricultural sector: the lack of trust and transparency between farmers and buyers. We built a platform that handles everything from contract creation to payments, ensuring farmers get paid fairly and buyers get the quality they expect.
 
